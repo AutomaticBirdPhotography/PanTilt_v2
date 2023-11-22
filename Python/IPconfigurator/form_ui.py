@@ -125,7 +125,8 @@ class Ui_MainWindow(object):
         self.info_text = QLabel(self.centralwidget)
         self.info_text.setObjectName(u"info_text")
         self.info_text.setGeometry(QRect(40, 210, 721, 51))
-        self.info_text.setStyleSheet(u"color: rgb(255, 0, 0);")
+        self.info_text.setStyleSheet(u"color: rgb(255, 0, 0);\n"
+"text-align: center;")
         self.listWidget = QListWidget(self.centralwidget)
         self.listWidget.setObjectName(u"listWidget")
         self.listWidget.setEnabled(True)

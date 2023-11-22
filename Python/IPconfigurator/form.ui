@@ -207,7 +207,8 @@
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">color: rgb(255, 0, 0);</string>
+     <string notr="true">color: rgb(255, 0, 0);
+text-align: center;</string>
     </property>
     <property name="text">
      <string/>

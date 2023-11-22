@@ -1,5 +1,5 @@
 import sys
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, QListWidgetItem
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, QListWidgetItem, QSizePolicy
 
 from form_ui import Ui_MainWindow
 
@@ -11,16 +11,9 @@ class MainWindow(QMainWindow):
         self.ui.listHeader.setVisible(False)
         self.ui.listWidget.setVisible(False)
 
-
         self.ip_address = ""
-        self.attempted_addresses = []
 
         self.spinBoxNames = ["spinBox1", "spinBox2", "spinBox3"]
-
-        self.ui.spinEdit1.textChanged.connect(lambda text: self.handle_spinEdit_value(text, 0))
-        self.ui.spinEdit2.textChanged.connect(lambda text: self.handle_spinEdit_value(text, 1))
-        
-        self.ui.comboBox.currentTextChanged.connect(self.handle_combo_value)
 
         for name in self.spinBoxNames:
             self.ui.__dict__[name].valueChanged.connect(self.handle_spinBox_value)
@@ -46,19 +39,12 @@ class MainWindow(QMainWindow):
             spin_values.append(spin_box.value())
         if spin_values[0] == 2:
             self.update_spinBox_max([self.spinBoxNames[1],self.spinBoxNames[2]], 5)
-            if spin_values[1] > 5: spin_values[1] = 5
-            if spin_values[2] > 5: spin_values[2] = 5
+            spin_values[1] = min(spin_values[1], 5)
+            spin_values[2] = min(spin_values[2], 5)
 
         else:
             self.update_spinBox_max([self.spinBoxNames[1],self.spinBoxNames[2]], 9)
 
-        print("Spin Box Values:", spin_values)
-
-    def handle_combo_value(self, text):
-        print("ComboBox Index Changed:", text)
-
-    def handle_spinEdit_value(self, text, index):
-        print(f"{index} Text Changed:", text)
 
     def connect(self):
         spin_values = [self.ui.__dict__[name].value() for name in self.spinBoxNames]
@@ -74,11 +60,34 @@ class MainWindow(QMainWindow):
         self.ui.listHeader.setVisible(True)
         self.ui.listWidget.setVisible(True)
         self.ui.info_text.setText(f"Error {self.ip_address}")
-        self.attempted_addresses.append(self.ip_address)
+
+        # Create a custom widget for each item in the list
+        item_widget = QWidget()
+        item_layout = QVBoxLayout(item_widget)
+
+        # Label for displaying the IP address
+        ip_label = QPushButton(self.ip_address)
+        
+        ip_label.setStyleSheet("font-size: 15pt;") # Adjust the size as needed
+        
+        ip_label.clicked.connect(self.handle_ip_label_click)
+        item_layout.addWidget(ip_label)
+
+        # Create a list widget item and set the widget for it
+        listWidgetItem = QListWidgetItem()
+        listWidgetItem.setSizeHint(item_widget.sizeHint())
+        
+        # Insert the item at the top of the list
+        self.ui.listWidget.insertItem(0, listWidgetItem)
+        self.ui.listWidget.setItemWidget(listWidgetItem, item_widget)
 
 
-        self.ui.listWidget.insertItem(0,self.ip_address) 
-    
+    def handle_ip_label_click(self):
+        sender_button = self.sender()
+        if sender_button is not None:
+            ip_address = sender_button.text()
+            self.reconnect(ip_address)
+
     def reconnect(self, ip_address):
         print(f"Reconnecting to {ip_address}")
     
