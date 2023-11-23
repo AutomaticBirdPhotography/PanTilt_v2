@@ -1,7 +1,9 @@
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton, QListWidgetItem, QSizePolicy
 
-from form_ui import Ui_MainWindow
+
+#To run it as a standalone remove the "." in front of form_ui below
+from .form_ui import Ui_MainWindow
 
 class MainWindow(QMainWindow):
     def __init__(self, parent=None):
