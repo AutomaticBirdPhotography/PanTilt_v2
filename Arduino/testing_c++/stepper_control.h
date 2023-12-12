@@ -24,8 +24,9 @@ class StepperControl {
     void setMaxSpeed(float maxSpeed);
     void setAcceleration(float acceleration);
     void speedUpdate(float targetSpeed);
-    void positionUpdate(float targetPosition);
+    void positionUpdate(int targetPosition);
     float calculateStoppingPosition(float speed);
+    int stepsToStop(float speed);
     float calculateSpeedIncrease(float target);
     void runSpeed(float speed);
     void step(int steps);

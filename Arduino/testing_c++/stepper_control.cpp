@@ -2,7 +2,7 @@
 #include <Arduino.h>
 
 StepperControl::StepperControl()
-  : currentPosition(0), currentSpeed(0), restSteps(0), stepPin(0), dirPin(0), MAX_SPEED(100), ABSOLUTE_MAX_SPEED(500), acceleration(10), speedIncrement(0), INTERVAL(60), currentUpdateTime(millis()), lastUpdateTime(millis()) {}
+  : currentPosition(0), currentSpeed(0), restSteps(0), stepPin(0), dirPin(0), MAX_SPEED(100), ABSOLUTE_MAX_SPEED(500), acceleration(10), speedIncrement(0), INTERVAL(50), currentUpdateTime(millis()), lastUpdateTime(millis()) {}
 
 void StepperControl::init(int stepPin, int dirPin) {
   this->stepPin = stepPin;
@@ -44,35 +44,52 @@ void StepperControl::speedUpdate(float targetSpeed) {
 
 }
 
-void StepperControl::positionUpdate(float targetPosition) {
+void StepperControl::positionUpdate(int targetPosition) {
   currentUpdateTime = millis();
-    if (calculateStoppingPosition(currentSpeed) < targetPosition) {
-      
-      if (abs(currentSpeed) < speedIncrement && abs(targetPosition - currentPosition) < speedIncrement*INTERVAL){
-        currentSpeed = 0;
-      } else currentSpeed += speedIncrement;
+  if (currentUpdateTime - lastUpdateTime >= INTERVAL) {
 
-    } else if (calculateStoppingPosition(currentSpeed) > targetPosition) {
-      
-      if (abs(currentSpeed) < speedIncrement && abs(targetPosition - currentPosition) < speedIncrement*INTERVAL){
-        currentSpeed = 0;
-      } else currentSpeed -= speedIncrement;
+    int distanceToGo = abs(targetPosition - currentPosition);
+
+    if (currentPosition < targetPosition){ // has to run up to the target
+
+      if (calculateStoppingPosition(currentSpeed+speedIncrement) < targetPosition) { // so if it can stop before the target with its new speed, it will accelerate
+        
+         currentSpeed += speedIncrement;        // else we increase the speed
+
+      } else if (calculateStoppingPosition(currentSpeed) >= targetPosition) { // if it can stop at the target or will run past we need to decelerate
+        
+        currentSpeed -= speedIncrement;
+      }
     }
+
+    else if (currentPosition > targetPosition){ // has to run down to the target
+      if (calculateStoppingPosition(currentSpeed-speedIncrement) > targetPosition){ // it can stop before target
+        currentSpeed -= speedIncrement;                             // decrease the speed more
+      } else if (calculateStoppingPosition(currentSpeed) <= targetPosition){ // it will stop at the position, or run past!
+        currentSpeed += speedIncrement;                                     // increase the speed, the speed is negative so increase to make it closer to 0
+      }
+      
+    }
+
+    if (stepsToStop(currentSpeed) <= 1 && distanceToGo == 0){   // if it is at the target, and has a so low speed that it can stop at 1 step or less
+        currentSpeed = 0;
+      }
 
     runSpeed(currentSpeed);
     lastUpdateTime = currentUpdateTime;
   }
+}
 
-long StepperControl::distanceToGo() {
-  return targetPosition - currentPosition;
+int StepperControl::stepsToStop(float speed){
+  int stopSteps = round((speed * speed) / (2.0 * acceleration));
+  return stopSteps;
 }
 
 float StepperControl::calculateStoppingPosition(float speed) {
   int direction;
   if (speed >= 0) direction = 1;
   else direction = -1;
-  long stepsToStop = (long)((speed * speed) / (2.0 * acceleration));
-  return currentPosition + stepsToStop * direction;
+  return currentPosition + stepsToStop(speed) * direction;
 }
 
 
@@ -87,11 +104,11 @@ void StepperControl::runSpeed(float speed) {
 
   restSteps -= (int)restSteps;
 
-  Serial.print("steps: ");
+  Serial.print("\tsteps: ");
   Serial.print(steps);
   Serial.print("\tspeed: ");
   Serial.print(speed);
-  Serial.print("\tstop: ");
+  Serial.print("\tstopPos: ");
   Serial.print(calculateStoppingPosition(speed));
   Serial.print("\tposition: ");
   Serial.println(currentPosition);
