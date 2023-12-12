@@ -69,7 +69,7 @@ class VideoStream():
 
 
 class VideoClient():
-    def __init__(self, logging : bool = True, clientAddress : str = "auto", port : str = "5454") -> None:
+    def __init__(self, logging : bool = True, debug : bool = False, clientAddress : str = "auto", port : str = "5454") -> None:
         """
         Initializes a video client object.
 
@@ -83,7 +83,8 @@ class VideoClient():
         self.is_connected = False
         self.client = None
         self.server_data = None
-        self.establish_connection(clientAddress)
+        if not debug:
+            self.establish_connection(clientAddress)
         
         
         self.stopped = False

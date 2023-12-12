@@ -3,14 +3,16 @@ This file contains the implementation of a remote control application for a Pan-
 The application allows the user to configure the IP address and establish a connection to the camera system.
 It also displays a live video feed from the camera and provides controls for pan and tilt movements.
 """
+# TODO: Add the functionality to move to point clicked on. Ie. also add ability in menu to change camera parameters
 
 import sys, cv2
-from PySide6.QtCore import QThread, Signal, Slot, Qt, QObject
-from PySide6.QtGui import QImage, QPixmap
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QListWidgetItem
+from PySide6.QtCore import QThread, Signal, Slot, Qt, QObject, QPoint
+from PySide6.QtGui import QImage, QPixmap, QMouseEvent, QPainter, QPen
+from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QListWidgetItem, QDialog, QLabel
 
 from application_ui import Ui_MainWindow
 from IPGui_ui import Ui_Form
+from focalGui_ui import Ui_Dialog
 
 from vidTransfer import VideoClient
 from joyinput import Controller
@@ -50,10 +52,14 @@ logger = setup_logger()
 
 
 # Create a VideoClient instance for video streaming
-tripod = VideoClient(clientAddress="auto", port="5454", logging=True)
+if logger.isEnabledFor(logging.DEBUG):
+    tripod = VideoClient(clientAddress="auto", port="5454", logging=True, debug=True)
+else:
+    tripod = VideoClient(clientAddress="auto", port="5454", logging=True, debug=False)
+
 joy = Controller(0)
 
-class IPConfigWindow(QWidget):
+class IPConfigWindow(QDialog):
     """
     A QWidget subclass that represents the IP configuration window.
     This window allows the user to configure the IP address and establish a connection to the camera system.
@@ -196,6 +202,11 @@ class IPConfigWindow(QWidget):
         """
         self.close()
 
+class FocalConfigWindow(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.ui = Ui_Dialog()
+        self.ui.setupUi(self)
 
 class VideoThread(QThread):
     """
@@ -215,6 +226,7 @@ class VideoThread(QThread):
             bytes_per_line = ch * w
             qt_image = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
             self.change_pixmap_signal.emit(qt_image)
+            time.sleep(0.1)
 
 class DataThread(QThread):
     def __init__(self, parent=None, joy=None, tripod=None, ui=None):
@@ -350,6 +362,7 @@ class MainWindow(QMainWindow):
         self.ui.setupUi(self)
         self.initProcess()
 
+
     def initProcess(self):
         """
         Initialize the user interface.
@@ -360,14 +373,44 @@ class MainWindow(QMainWindow):
 
         self.data_thread = DataThread(joy=joy, tripod=tripod, ui=self.ui)
         self.data_thread.start()
+        
+        self.ui.actionIP_Config.triggered.connect(self.show_ip_dialog)
+        self.ui.actionChange_camera.triggered.connect(self.show_focal_dialog)
+        self.focal_length = 500
 
         #self.show_ip_dialog()
+
+
+    def mousePressEvent(self, event: QMouseEvent):
+        mousePos = self.ui.videoFrame.mapFrom(self, event.position().toPoint())
+        if (mousePos.x() < 0 or mousePos.x() > self.image_size.width() or mousePos.y() < 0 or mousePos.y() > self.image_size.height()):
+            return
+        image_center = QPoint(self.image_size.width()/2, self.image_size.height()/2)
+        
+        self.toPointPos = image_center - mousePos
+        self.drawPoint(mousePos, self.ui.videoFrame.pixmap().toImage())
+        print(f"Offset: {self.toPointPos.x()}, {self.toPointPos.y()}")
+    
+    def drawPoint(self, point, image):
+        painter = QPainter(image)
+        painter.setPen(QPen(Qt.red))
+        painter.drawPoint(point)
 
     def show_ip_dialog(self):
         """
         Show the IP configuration dialog.
         """
-        dialog = IPConfigWindow(self)
+        widget = IPConfigWindow(self)
+        widget.exec()
+
+    def show_focal_dialog(self):
+        """
+        Show the camera configuration dialog.
+        """
+        dialog = FocalConfigWindow(self)
+        if dialog.exec() == QDialog.Accepted:
+            self.focal_length = int(dialog.ui.comboBox.currentText())
+            logger.info(f"Changed focal length to {self.focal_length}")
 
     @Slot(QImage)
     def update_video_frame(self, image):
@@ -380,6 +423,7 @@ class MainWindow(QMainWindow):
         label_width = self.ui.videoFrame.width()
         label_height = self.ui.videoFrame.height()
         pixmap = QPixmap.fromImage(image).scaled(label_width, label_height, Qt.KeepAspectRatio)
+        self.image_size = pixmap.size()
         self.ui.videoFrame.setPixmap(pixmap)
 
     def closeEvent(self, event):
@@ -405,6 +449,7 @@ if __name__ == "__main__":
 
     finally:
         try:
+            joy.stop()
             tripod.stop()   #Tar seg av å sende "s"
         except Exception as e:
             logger.error("An error occurred", exc_info=True)
