@@ -11,7 +11,9 @@ class StepperControl {
     int stepPin;
     int dirPin;
     float MAX_SPEED;
-    const int ABSOLUTE_MAX_SPEED;
+    int MAX_UP;
+    int MAX_DOWN;
+    const int ABSOLUTE_MAX_SPEED = 500;
     float acceleration;
     float speedIncrement;
     float INTERVAL;
@@ -19,8 +21,7 @@ class StepperControl {
     unsigned long lastUpdateTime;
 
   public:
-    StepperControl();
-    void init(int stepPin, int dirPin);
+    StepperControl(int stepPin, int dirPin);
     void setMaxSpeed(float maxSpeed);
     void setAcceleration(float acceleration);
     void speedUpdate(float targetSpeed);
@@ -29,8 +30,11 @@ class StepperControl {
     int stepsToStop(float speed);
     float calculateSpeedIncrease(float target);
     void runSpeed(float speed);
+    void run(float targetSpeed, int targetPosition);
     void step(int steps);
     int getPosition();
+    void setMaxUp(int maxUp);
+    void setMaxDown(int maxDown);
 };
 
 #endif
