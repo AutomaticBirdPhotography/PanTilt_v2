@@ -27,7 +27,7 @@ class Ui_Form(object):
         Form.setStyleSheet(u"font: 22pt \"Segoe UI\";")
         self.layoutWidget = QWidget(Form)
         self.layoutWidget.setObjectName(u"layoutWidget")
-        self.layoutWidget.setGeometry(QRect(260, 60, 401, 46))
+        self.layoutWidget.setGeometry(QRect(190, 80, 401, 46))
         self.horizontalLayout = QHBoxLayout(self.layoutWidget)
         self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setObjectName(u"horizontalLayout")
@@ -113,7 +113,7 @@ class Ui_Form(object):
 
         self.checkButton = QPushButton(Form)
         self.checkButton.setObjectName(u"checkButton")
-        self.checkButton.setGeometry(QRect(370, 220, 121, 71))
+        self.checkButton.setGeometry(QRect(320, 210, 121, 71))
         self.listWidget = QListWidget(Form)
         self.listWidget.setObjectName(u"listWidget")
         self.listWidget.setEnabled(True)

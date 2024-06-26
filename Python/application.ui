@@ -13,6 +13,177 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">
+/* Set the background color to a dark shade */
+QWidget {
+	font: 14pt &quot;Segoe UI&quot;;
+    background-color: #333333; /* You can adjust the color code as needed */
+    color: #ffffff; /* Set the text color to white or a contrasting color */
+}
+
+/* Set the background color of QComboBox */
+QComboBox {
+    background-color: #444444;
+    color: #ffffff;
+	border-radius: 5px;
+}
+
+/* Set the background color of QSpinBox */
+QSpinBox {
+    background-color: #444444;
+    color: #ffffff;
+	border-radius: 5px;
+}
+
+
+
+/* Set the background color of QListView */
+QListView {
+    background-color: #555555;
+}
+
+/* Set the background color of QLineEdit */
+QLineEdit {
+    background-color: #444444;
+}
+
+/* Set the background color of QPlainTextEdit */
+QPlainTextEdit {
+    background-color: #444444;
+}
+
+/* Set the background color of QTabWidget */
+QTabWidget {
+    background-color: #444444;
+}
+
+/* Set the background color of QTableWidget */
+QTableWidget {
+    background-color: #444444;
+}
+
+/* Set the background color of QHeaderView */
+QHeaderView {
+    background-color: #555555;
+}
+
+/* Set the background color of QScrollBar */
+QScrollBar:vertical {
+    background-color: #555555;
+}
+
+/* Set the background color of QScrollBar handle */
+QScrollBar::handle:vertical {
+    background-color: #777777;
+}
+
+/* Set the background color of QScrollBar handle when pressed */
+QScrollBar::handle:vertical:pressed {
+    background-color: #999999;
+}
+
+/* Set the background color of QScrollBar add and subtract buttons */
+QScrollBar::add-line:vertical,
+QScrollBar::sub-line:vertical {
+    background: #555555;
+}
+
+/* Set the background color of QScrollBar add and subtract buttons when pressed */
+QScrollBar::add-line:vertical:pressed,
+QScrollBar::sub-line:vertical:pressed {
+    background: #777777;
+}
+
+/* Set the background color of QMenuBar */
+QMenuBar {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+/* Set the background color of QMenuBar items */
+QMenuBar::item {
+    background-color: #333333;
+}
+
+/* Set the background color of QMenuBar items when hovered */
+QMenuBar::item:selected {
+    background-color: #555555;
+}
+
+/* Set the background color of QMenuBar items when pressed */
+QMenuBar::item:pressed {
+    background-color: #777777;
+}
+
+/* Set the background color of QMenu */
+QMenu {
+    background-color: #333333;
+    color: #ffffff;
+	border-radius: 5px;
+}
+
+/* Set the background color of QMenu items */
+QMenu::item {
+    background-color: #333333;
+}
+
+/* Set the background color of QMenu items when hovered */
+QMenu::item:selected {
+    background-color: #555555;
+}
+
+/* Set the background color of QMenu items when pressed */
+QMenu::item:pressed {
+    background-color: #777777;
+}
+
+/* Set the background color of QMenu items when checked */
+QMenu::item:checked {
+    background-color: #555555;
+}
+
+/* Set the background color of QMenu items when checked and hovered */
+QMenu::item:checked:selected {
+    background-color: #777777;
+}
+
+/* Set the background color of QPushButton */
+QPushButton {
+    background-color: #296968;
+    color: #ffffff;
+	border-radius: 5px;
+	padding: 5px;
+}
+
+/* Set the background color of QPushButton when hovered */
+QPushButton:hover {
+    background-color: #1a4848;
+
+}
+
+/* Set the background color of QPushButton when pressed */
+QPushButton:pressed {
+    background-color: #666666;
+}
+
+/* Set the background color of QPushButton when focused */
+QPushButton:selected {
+    background-color: #777777;
+}
+
+QCheckBox:indicator {
+	background-color : #555555;
+	border-radius: 5px;
+    width: 16px; /* Adjust the size as needed */
+    height: 16px; /* Adjust the size as needed */
+}
+
+QCheckBox:indicator:checked {
+	background-color : #f58900;
+}
+</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QLabel" name="videoFrame">
     <property name="geometry">
@@ -23,6 +194,9 @@
       <height>431</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true"/>
+    </property>
     <property name="text">
      <string>DSLR_video</string>
     </property>
@@ -30,9 +204,9 @@
    <widget class="QCheckBox" name="joyInputCheckBox">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>30</x>
       <y>530</y>
-      <width>81</width>
+      <width>101</width>
       <height>21</height>
      </rect>
     </property>
@@ -52,9 +226,9 @@
    <widget class="QCheckBox" name="enableCheckBox">
     <property name="geometry">
      <rect>
-      <x>130</x>
+      <x>150</x>
       <y>530</y>
-      <width>75</width>
+      <width>81</width>
       <height>20</height>
      </rect>
     </property>
@@ -68,10 +242,10 @@
    <widget class="QPushButton" name="homeButton">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>530</y>
-      <width>75</width>
-      <height>24</height>
+      <x>250</x>
+      <y>520</y>
+      <width>81</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
@@ -81,10 +255,10 @@
    <widget class="QPushButton" name="alignButton">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>530</y>
-      <width>75</width>
-      <height>24</height>
+      <x>340</x>
+      <y>520</y>
+      <width>81</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="text">
@@ -94,10 +268,10 @@
    <widget class="QComboBox" name="moveFactor">
     <property name="geometry">
      <rect>
-      <x>710</x>
-      <y>50</y>
-      <width>68</width>
-      <height>22</height>
+      <x>697</x>
+      <y>41</y>
+      <width>81</width>
+      <height>31</height>
      </rect>
     </property>
    </widget>
@@ -108,7 +282,7 @@
      <x>0</x>
      <y>0</y>
      <width>819</width>
-     <height>22</height>
+     <height>32</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuProperties">

@@ -7,7 +7,7 @@ It also displays a live video feed from the camera and provides controls for pan
 
 import sys, cv2
 from PySide6.QtCore import QThread, Signal, Slot, Qt, QObject, QPoint
-from PySide6.QtGui import QImage, QPixmap, QMouseEvent, QPainter, QPen
+from PySide6.QtGui import QImage, QPixmap, QMouseEvent, QPainter, QBrush, QColor
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QListWidgetItem, QDialog, QLabel
 
 from application_ui import Ui_MainWindow
@@ -18,9 +18,10 @@ from vidTransfer import VideoClient
 from joyinput import Controller
 import time
 import logging
+import math
 
 MAX_DISCONNECT_TIME = 60  # Maximum time in seconds to wait for tripod connection before reconnecting
-
+CAMERA_SENSOR_WIDTH = 35.9  # Width of the camera sensor in mm
 # Set global logging level
 LOGGING_LEVEL = logging.DEBUG  # Change this to INFO, WARNING, ERROR, CRITICAL as per your requirement
 # If logger is set to level DEBUG it does not connect to the tripod
@@ -219,14 +220,16 @@ class VideoThread(QThread):
         """
         Run the video streaming thread.
         """
+        cap = cv2.VideoCapture(0)
         while True:
-            frame = tripod.grabFrame()
+            #frame = tripod.grabFrame()
+            _, frame = cap.read()
             rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             h, w, ch = rgb_image.shape
             bytes_per_line = ch * w
             qt_image = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
             self.change_pixmap_signal.emit(qt_image)
-            time.sleep(0.1)
+            cv2.waitKey(1)
 
 class DataThread(QThread):
     def __init__(self, parent=None, joy=None, tripod=None, ui=None):
@@ -244,6 +247,7 @@ class DataThread(QThread):
 
         # Create a logger for the class
         self.logger = logging.getLogger(__name__)
+        self.DEBUG = self.logger.isEnabledFor(logging.DEBUG)
 
         # Set move factors in moveFactor combobox
         self.ui.moveFactor.clear()
@@ -269,12 +273,12 @@ class DataThread(QThread):
         Handle the enableCheckBox.
         """
         if self.ui.enableCheckBox.isChecked():
-            if not self.logger.isEnabledFor(logging.DEBUG):
+            if not self.DEBUG:
                 self.tripod.sendData("e")
 
             self.logger.info("Sent 'e' command to tripod")
         else:
-            if not self.logger.isEnabledFor(logging.DEBUG):
+            if not self.DEBUG:
                 self.tripod.sendData("d")
             self.logger.info("Sent 'd' command to tripod")
     
@@ -282,7 +286,7 @@ class DataThread(QThread):
         """
         Handle the homeButton.
         """
-        if not self.logger.isEnabledFor(logging.DEBUG):
+        if not self.DEBUG:
             self.tripod.sendData("h")
         self.logger.info("Sent 'h' command to tripod")
 
@@ -290,9 +294,22 @@ class DataThread(QThread):
         """
         Handle the alignButton.
         """
-        if not self.logger.isEnabledFor(logging.DEBUG):
+        if not self.DEBUG:
             self.tripod.sendData("a")
         self.logger.info("Sent 'a' command to tripod")
+    
+    def send_offset(self, offset_pos):
+                """
+                Send the offset values to the tripod.
+
+                Args:
+                    x_offset (int): The X offset value.
+                    y_offset (int): The Y offset value.
+                """
+                offset_data = f"offset {offset_pos[0]}, {offset_pos[1]}"
+                if not self.DEBUG:
+                    self.tripod.sendData(offset_data)
+                self.logger.info(f"Sent '{offset_data}' to tripod")
 
     def buttonAction(self, button):
         match button:
@@ -327,12 +344,12 @@ class DataThread(QThread):
 
     def run(self):
         while True:
-            if tripod.is_connected or self.logger.isEnabledFor(logging.DEBUG):
+            if tripod.is_connected or self.DEBUG:
                 last_connected = time.time()
             else:
                 if time.time() - last_connected > MAX_DISCONNECT_TIME:
                     self.logger.error(f"Connection to tripod has been lost for more than {MAX_DISCONNECT_TIME} seconds. Reconnecting...")
-                    if not self.logger.isEnabledFor(logging.DEBUG):
+                    if not self.DEBUG:
                         tripod.establish_connection("auto")
 
             clicked_button = self.joy.get_active_button()
@@ -340,12 +357,12 @@ class DataThread(QThread):
                 self.last_button = clicked_button
                 self.buttonAction(clicked_button)
             
-            if self.ui.joyInputCheckBox.isChecked() and (self.tripod.is_connected or self.logger.isEnabledFor(logging.DEBUG)):
+            if self.ui.joyInputCheckBox.isChecked() and (self.tripod.is_connected or self.DEBUG):
                 move_factor = float(self.ui.moveFactor.currentText())
                 data = f"{self.joy.get_joystick_position(0, move_factor)}, {self.joy.get_joystick_position(1, move_factor)}"
                 if (data != self.last_data):
                     self.last_data = data
-                    if not self.logger.isEnabledFor(logging.DEBUG):
+                    if not self.DEBUG:
                         self.tripod.sendData(data)
                     self.logger.debug(f"Sent '{data}' to tripod")
                 self.last_data = data
@@ -361,6 +378,8 @@ class MainWindow(QMainWindow):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         self.initProcess()
+        self.mousePos = None
+        self.showMaximized()
 
 
     def initProcess(self):
@@ -380,21 +399,33 @@ class MainWindow(QMainWindow):
 
         #self.show_ip_dialog()
 
-
+    def offset_angle(self, point_pos):
+        """
+        Calculate the offset angle of the point clicked on.
+        """
+        field_of_view = 2 * math.atan(CAMERA_SENSOR_WIDTH / (2 * self.focal_length))
+        degrees_per_pixel = field_of_view / self.image_size.width()
+        return (point_pos.x() * degrees_per_pixel, point_pos.y() * degrees_per_pixel)
+    
     def mousePressEvent(self, event: QMouseEvent):
         mousePos = self.ui.videoFrame.mapFrom(self, event.position().toPoint())
-        if (mousePos.x() < 0 or mousePos.x() > self.image_size.width() or mousePos.y() < 0 or mousePos.y() > self.image_size.height()):
+        if (
+            mousePos.x() < 0
+            or mousePos.x() > self.image_size.width()
+            or mousePos.y() < 0
+            or mousePos.y() > self.image_size.height()
+        ):
             return
+        
         image_center = QPoint(self.image_size.width()/2, self.image_size.height()/2)
         
         self.toPointPos = image_center - mousePos
-        self.drawPoint(mousePos, self.ui.videoFrame.pixmap().toImage())
-        print(f"Offset: {self.toPointPos.x()}, {self.toPointPos.y()}")
-    
-    def drawPoint(self, point, image):
-        painter = QPainter(image)
-        painter.setPen(QPen(Qt.red))
-        painter.drawPoint(point)
+        self.mousePos = mousePos
+        self.circle_visible_frames = 15  # Set the desired number of frames
+        
+        # Send offset to the tripod
+        self.data_thread.send_offset(self.offset_angle(self.toPointPos))
+
 
     def show_ip_dialog(self):
         """
@@ -412,6 +443,7 @@ class MainWindow(QMainWindow):
             self.focal_length = int(dialog.ui.comboBox.currentText())
             logger.info(f"Changed focal length to {self.focal_length}")
 
+    
     @Slot(QImage)
     def update_video_frame(self, image):
         """
@@ -423,7 +455,20 @@ class MainWindow(QMainWindow):
         label_width = self.ui.videoFrame.width()
         label_height = self.ui.videoFrame.height()
         pixmap = QPixmap.fromImage(image).scaled(label_width, label_height, Qt.KeepAspectRatio)
+        
         self.image_size = pixmap.size()
+
+        # Draw a circle at the saved mouse press position
+        if self.mousePos is not None and self.circle_visible_frames > 0:
+            painter = QPainter(pixmap)
+            painter.setRenderHint(QPainter.Antialiasing, True)  # Enable antialiasing
+            painter.setBrush(QBrush(QColor("#e34c14")))  # Set the fill color
+            painter.drawEllipse(self.mousePos, 7, 7)
+            painter.end()
+            self.circle_visible_frames -= 1
+        else:
+            self.mousePos = None  # Reset the saved position after drawing
+        
         self.ui.videoFrame.setPixmap(pixmap)
 
     def closeEvent(self, event):

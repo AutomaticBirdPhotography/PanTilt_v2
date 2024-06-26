@@ -25,6 +25,179 @@ class Ui_MainWindow(object):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
         MainWindow.resize(819, 648)
+        MainWindow.setStyleSheet(u"\n"
+"/* Set the background color to a dark shade */\n"
+"QWidget {\n"
+"	font: 14pt \"Segoe UI\";\n"
+"    background-color: #333333; /* You can adjust the color code as needed */\n"
+"    color: #ffffff; /* Set the text color to white or a contrasting color */\n"
+"}\n"
+"\n"
+"/* Set the background color of QComboBox */\n"
+"QComboBox {\n"
+"    background-color: #444444;\n"
+"    color: #ffffff;\n"
+"	border-radius: 5px;\n"
+"}\n"
+"\n"
+"/* Set the background color of QSpinBox */\n"
+"QSpinBox {\n"
+"    background-color: #444444;\n"
+"    color: #ffffff;\n"
+"	border-radius: 5px;\n"
+"}\n"
+"\n"
+"\n"
+"\n"
+"/* Set the background color of QListView */\n"
+"QListView {\n"
+"    background-color: #555555;\n"
+"}\n"
+"\n"
+"/* Set the background color of QLineEdit */\n"
+"QLineEdit {\n"
+"    background-color: #444444;\n"
+"}\n"
+"\n"
+"/* Set the background color of QPlainTextEdit */\n"
+"QPlainTextEdit {\n"
+"    background-color: #444444;\n"
+"}\n"
+"\n"
+"/* Set the background color of QTabWidget */\n"
+"QTabWidget {\n"
+"    background-color"
+                        ": #444444;\n"
+"}\n"
+"\n"
+"/* Set the background color of QTableWidget */\n"
+"QTableWidget {\n"
+"    background-color: #444444;\n"
+"}\n"
+"\n"
+"/* Set the background color of QHeaderView */\n"
+"QHeaderView {\n"
+"    background-color: #555555;\n"
+"}\n"
+"\n"
+"/* Set the background color of QScrollBar */\n"
+"QScrollBar:vertical {\n"
+"    background-color: #555555;\n"
+"}\n"
+"\n"
+"/* Set the background color of QScrollBar handle */\n"
+"QScrollBar::handle:vertical {\n"
+"    background-color: #777777;\n"
+"}\n"
+"\n"
+"/* Set the background color of QScrollBar handle when pressed */\n"
+"QScrollBar::handle:vertical:pressed {\n"
+"    background-color: #999999;\n"
+"}\n"
+"\n"
+"/* Set the background color of QScrollBar add and subtract buttons */\n"
+"QScrollBar::add-line:vertical,\n"
+"QScrollBar::sub-line:vertical {\n"
+"    background: #555555;\n"
+"}\n"
+"\n"
+"/* Set the background color of QScrollBar add and subtract buttons when pressed */\n"
+"QScrollBar::add-line:vertical:pressed,\n"
+"QScrollBar::sub-line:vertical:pressed {\n"
+""
+                        "    background: #777777;\n"
+"}\n"
+"\n"
+"/* Set the background color of QMenuBar */\n"
+"QMenuBar {\n"
+"    background-color: #333333;\n"
+"    color: #ffffff;\n"
+"}\n"
+"\n"
+"/* Set the background color of QMenuBar items */\n"
+"QMenuBar::item {\n"
+"    background-color: #333333;\n"
+"}\n"
+"\n"
+"/* Set the background color of QMenuBar items when hovered */\n"
+"QMenuBar::item:selected {\n"
+"    background-color: #555555;\n"
+"}\n"
+"\n"
+"/* Set the background color of QMenuBar items when pressed */\n"
+"QMenuBar::item:pressed {\n"
+"    background-color: #777777;\n"
+"}\n"
+"\n"
+"/* Set the background color of QMenu */\n"
+"QMenu {\n"
+"    background-color: #333333;\n"
+"    color: #ffffff;\n"
+"	border-radius: 5px;\n"
+"}\n"
+"\n"
+"/* Set the background color of QMenu items */\n"
+"QMenu::item {\n"
+"    background-color: #333333;\n"
+"}\n"
+"\n"
+"/* Set the background color of QMenu items when hovered */\n"
+"QMenu::item:selected {\n"
+"    background-color: #555555;\n"
+"}\n"
+"\n"
+"/* Set the background color of QMenu items when p"
+                        "ressed */\n"
+"QMenu::item:pressed {\n"
+"    background-color: #777777;\n"
+"}\n"
+"\n"
+"/* Set the background color of QMenu items when checked */\n"
+"QMenu::item:checked {\n"
+"    background-color: #555555;\n"
+"}\n"
+"\n"
+"/* Set the background color of QMenu items when checked and hovered */\n"
+"QMenu::item:checked:selected {\n"
+"    background-color: #777777;\n"
+"}\n"
+"\n"
+"/* Set the background color of QPushButton */\n"
+"QPushButton {\n"
+"    background-color: #296968;\n"
+"    color: #ffffff;\n"
+"	border-radius: 5px;\n"
+"	padding: 5px;\n"
+"}\n"
+"\n"
+"/* Set the background color of QPushButton when hovered */\n"
+"QPushButton:hover {\n"
+"    background-color: #1a4848;\n"
+"\n"
+"}\n"
+"\n"
+"/* Set the background color of QPushButton when pressed */\n"
+"QPushButton:pressed {\n"
+"    background-color: #666666;\n"
+"}\n"
+"\n"
+"/* Set the background color of QPushButton when focused */\n"
+"QPushButton:selected {\n"
+"    background-color: #777777;\n"
+"}\n"
+"\n"
+"QCheckBox:indicator {\n"
+"	background-color : #555555;\n"
+""
+                        "	border-radius: 5px;\n"
+"    width: 16px; /* Adjust the size as needed */\n"
+"    height: 16px; /* Adjust the size as needed */\n"
+"}\n"
+"\n"
+"QCheckBox:indicator:checked {\n"
+"	background-color : #f58900;\n"
+"}\n"
+"")
         self.actionChange_camera = QAction(MainWindow)
         self.actionChange_camera.setObjectName(u"actionChange_camera")
         self.actionIP_Config = QAction(MainWindow)
@@ -34,28 +207,29 @@ class Ui_MainWindow(object):
         self.videoFrame = QLabel(self.centralwidget)
         self.videoFrame.setObjectName(u"videoFrame")
         self.videoFrame.setGeometry(QRect(40, 80, 741, 431))
+        self.videoFrame.setStyleSheet(u"")
         self.joyInputCheckBox = QCheckBox(self.centralwidget)
         self.joyInputCheckBox.setObjectName(u"joyInputCheckBox")
-        self.joyInputCheckBox.setGeometry(QRect(40, 530, 81, 21))
+        self.joyInputCheckBox.setGeometry(QRect(30, 530, 101, 21))
         self.joyInputCheckBox.setIconSize(QSize(16, 16))
         self.joyInputCheckBox.setChecked(True)
         self.enableCheckBox = QCheckBox(self.centralwidget)
         self.enableCheckBox.setObjectName(u"enableCheckBox")
-        self.enableCheckBox.setGeometry(QRect(130, 530, 75, 20))
+        self.enableCheckBox.setGeometry(QRect(150, 530, 81, 20))
         self.enableCheckBox.setChecked(True)
         self.homeButton = QPushButton(self.centralwidget)
         self.homeButton.setObjectName(u"homeButton")
-        self.homeButton.setGeometry(QRect(210, 530, 75, 24))
+        self.homeButton.setGeometry(QRect(250, 520, 81, 41))
         self.alignButton = QPushButton(self.centralwidget)
         self.alignButton.setObjectName(u"alignButton")
-        self.alignButton.setGeometry(QRect(310, 530, 75, 24))
+        self.alignButton.setGeometry(QRect(340, 520, 81, 41))
         self.moveFactor = QComboBox(self.centralwidget)
         self.moveFactor.setObjectName(u"moveFactor")
-        self.moveFactor.setGeometry(QRect(710, 50, 68, 22))
+        self.moveFactor.setGeometry(QRect(697, 41, 81, 31))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 819, 22))
+        self.menubar.setGeometry(QRect(0, 0, 819, 32))
         self.menuProperties = QMenu(self.menubar)
         self.menuProperties.setObjectName(u"menuProperties")
         MainWindow.setMenuBar(self.menubar)
